@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Catalogue{% endblock %}
+{% block content %}
+<header class="head"><div><h1>Catalogue</h1><p class="sub">{{ books|length }} titles. Ask the librarian to borrow one.</p></div></header>
+<form class="filters" method="get">
+  <input name="q" value="{{ term }}" placeholder="Search title, author or ISBN" aria-label="Search">
+  <select name="cat" aria-label="Category" onchange="this.form.submit()"><option value="">All categories</option>
+    {% for c in cats %}<option {{ 'selected' if c==cat }}>{{ c }}</option>{% endfor %}</select>
+  <button class="btn">Search</button>
+</form>
+<div class="grid">
+{% for b in books %}
+  <article class="tile">
+    <div class="cover" style="--h:{{ b.title|hue }}"><strong>{{ b.title }}</strong><span>{{ b.author }}</span></div>
+    <p class="meta">{{ b.category }}</p>
+    {% if b.avail > 0 %}<span class="pill ok">{{ b.avail }} on the shelf</span>
+    {% else %}<span class="pill warn">Back around {{ b.back|pretty }}</span>{% endif %}
+  </article>
+{% else %}<p class="empty">No books match. Clear the search or pick another category.</p>{% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<header class="head"><div><h1>Good to see you</h1><p class="sub">{{ today|pretty }} · {{ s.out }} books are out, {{ s.overdue }} overdue.</p></div>
+<div class="actions"><a class="btn" href="{{ url_for('book_new') }}">Add book</a><a class="btn primary" href="{{ url_for('issues') }}">Issue a book</a></div></header>
+
+<section class="shelf" aria-label="Newest additions">
+  <div class="books">
+    {% for b in shelf %}
+    <a class="spine" href="{{ url_for('book_edit', bid=b.id) }}" title="{{ b.title }} - {{ b.author }}"
+       style="--i:{{ loop.index0 }};--h:{{ b.title|hue }};--ht:{{ 150 + (b.id*23)%60 }}px"><span>{{ b.title }}</span></a>
+    {% endfor %}
+  </div>
+  <div class="plank"></div>
+  <p class="shelf-cap">Newest on the shelf</p>
+</section>
+
+<section class="stats">
+  <div><b data-count>{{ s.titles }}</b>Titles</div>
+  <div><b data-count>{{ s.copies }}</b>Copies owned</div>
+  <div><b data-count>{{ s.members }}</b>Members</div>
+  <div><b data-count>{{ s.out }}</b>Currently out</div>
+  <div class="{{ 'alert' if s.overdue }}"><b data-count>{{ s.overdue }}</b>Overdue</div>
+</section>
+
+<div class="cols">
+  <section class="panel">
+    <h2>Overdue returns</h2>
+    {% if overdue %}
+    <table><thead><tr><th>Book</th><th>Member</th><th>Due</th><th class="r">Fine</th></tr></thead><tbody>
+    {% for i in overdue %}<tr><td>{{ i.title }}</td><td>{{ i.name }}</td><td>{{ i.due|pretty }}</td><td class="r late">₹{{ late_fine(i.due) }}</td></tr>{% endfor %}
+    </tbody></table>
+    {% else %}<p class="empty">Nothing overdue. Every loan is within its due date.</p>{% endif %}
+  </section>
+  <section class="panel">
+    <h2>Collection by category</h2>
+    {% set mx = (cats|map(attribute='n')|max) or 1 %}
+    {% for c in cats %}
+    <div class="bar"><span>{{ c.category }}</span><i style="--w:{{ (c.n/mx*100)|round }}%;--h:{{ c.category|hue }}"></i><em>{{ c.n }}</em></div>
+    {% endfor %}
+  </section>
+</div>
+
+<section class="panel">
+  <h2>Recent activity</h2>
+  <table><tbody>
+  {% for i in recent %}<tr><td>{{ i.name }}</td><td>{{ 'returned' if i.returned else 'borrowed' }}</td><td><b>{{ i.title }}</b></td><td class="r muted">{{ (i.returned or i.issued)|pretty }}</td></tr>
+  {% else %}<tr><td class="empty">No loans yet. Issue the first book to see activity here.</td></tr>{% endfor %}
+  </tbody></table>
+</section>
+{% endblock %}

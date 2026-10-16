@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}My desk{% endblock %}
+{% block content %}
+<header class="head"><div><h1>Hello, {{ m.name.split()[0] }}</h1>
+<p class="sub">{% if active %}You have {{ active|length }} book{{ 's' if active|length>1 }} on your desk.{% else %}Your desk is clear.{% endif %}</p></div>
+<a class="btn primary" href="{{ url_for('catalogue') }}">Browse catalogue</a></header>
+<section class="stats">
+  <div><b data-count>{{ active|length }}</b>Reading now</div>
+  <div><b data-count>{{ history|length }}</b>Books returned</div>
+  <div class="{{ 'alert' if owed }}"><b>₹<span data-count>{{ owed }}</span></b>Fine due</div>
+  <div><b>₹<span data-count>{{ paid }}</span></b>Fines paid</div>
+</section>
+<h2 class="sec">On your desk</h2>
+{% if active %}
+<div class="loans">
+{% for l in active %}
+  <article class="loan {{ 'late' if l.left < 0 }}" style="--n:{{ loop.index0 }}">
+    <i class="cv-lg" style="--h:{{ l.title|hue }}"></i>
+    <div><h3>{{ l.title }}</h3><p class="muted">{{ l.author }}</p>
+      <div class="meter {{ 'late' if l.left < 0 }}" style="--p:{{ l.pct }}%"><i></i></div>
+      <p class="due">{% if l.left < 0 %}<b>{{ -l.left }} day{{ 's' if l.left != -1 }} late</b> · fine so far ₹{{ l.fine }}{% elif l.left == 0 %}<b>Due today</b>. Return it to avoid a fine.{% else %}Due {{ l.due|pretty }} · <b>{{ l.left }} day{{ 's' if l.left != 1 }} left</b>{% endif %}</p>
+    </div>
+  </article>
+{% endfor %}
+</div>
+{% else %}<div class="panel"><p class="empty">Nothing borrowed right now. <a class="link" href="{{ url_for('catalogue') }}">Find your next read</a></p></div>{% endif %}
+<h2 class="sec">Reading history</h2>
+<section class="panel flush"><table class="rows"><thead><tr><th>Book</th><th>Borrowed</th><th>Returned</th><th class="r">Fine</th></tr></thead><tbody>
+{% for h in history %}<tr><td><b>{{ h.title }}</b><br><span class="muted">{{ h.author }}</span></td><td>{{ h.issued|pretty }}</td><td>{{ h.returned|pretty }}</td><td class="r">{{ '₹%d'|format(h.fine) if h.fine else '-' }}</td></tr>
+{% else %}<tr><td colspan="4" class="empty">Returned books will appear here.</td></tr>{% endfor %}
+</tbody></table></section>
+{% endblock %}

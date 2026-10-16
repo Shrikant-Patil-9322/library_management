@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Members{% endblock %}
+{% block content %}
+<header class="head"><div><h1>Members</h1><p class="sub">{{ members|length }} people in the register.</p></div>
+<a class="btn primary" href="{{ url_for('member_new') }}">Add member</a></header>
+<form class="filters" method="get"><input name="q" value="{{ term }}" placeholder="Search name or email" aria-label="Search members"><button class="btn">Search</button></form>
+<section class="panel flush">
+<table class="rows"><thead><tr><th>Name</th><th>Contact</th><th>Joined</th><th>Books out</th><th></th></tr></thead><tbody>
+{% for m in members %}
+<tr><td><span class="avatar" style="--h:{{ m.name|hue }}">{{ m.name[0] }}</span><b>{{ m.name }}</b></td>
+<td>{{ m.email or '-' }}<br><span class="muted">{{ m.phone }}</span></td><td>{{ m.joined|pretty }}</td>
+<td><span class="pill {{ 'warn' if m.out else '' }}">{{ m.out }}</span></td>
+<td class="r"><a class="link" href="{{ url_for('member_edit', mid=m.id) }}">Edit</a>
+<form method="post" action="{{ url_for('member_delete', mid=m.id) }}" data-confirm="Delete {{ m.name }}?"><button class="link danger">Delete</button></form></td></tr>
+{% else %}<tr><td colspan="5" class="empty">No members found. Add someone to start lending.</td></tr>{% endfor %}
+</tbody></table></section>
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Sign in{% endblock %}
+{% block bare %}
+<div class="login">
+  <section class="login-art" aria-hidden="true">
+    <div class="stack">
+      {% for t in ['Middlemarch','Godaan','Kokoro','Ficciones','Gitanjali','Beloved','Siddhartha'] %}
+      <i style="--i:{{ loop.index0 }};--h:{{ t|hue }};--w:{{ 180 + loop.index*14 }}px;--r:{{ (loop.index*7)%11 - 5 }}px">{{ t }}</i>
+      {% endfor %}
+    </div>
+    <p>Every book that leaves the shelf should find its way back.</p>
+  </section>
+  <section class="login-form">
+    <form method="post">
+      <h1>Welcome back</h1>
+      {% with msgs = get_flashed_messages(with_categories=true) %}
+        {% for cat, m in msgs %}<div class="toast {{ cat }}">{{ m }}</div>{% endfor %}
+      {% endwith %}
+      <label>Email or username<input name="username" autofocus required autocomplete="username"></label>
+      <label>Password<input name="password" type="password" required autocomplete="current-password"></label>
+      <button class="btn primary wide">Sign in</button>
+      <p class="hint">New reader? <a href="{{ url_for('register') }}"><b>Create an account</b></a></p>
+      
+    </form>
+  </section>
+</div>
+{% endblock %}

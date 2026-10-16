@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<header class="head"><h1>{{ title }}</h1></header>
+<form method="post" class="panel formbox">
+  {% for name, label, type in fields %}
+  <label>{{ label }}<input name="{{ name }}" type="{{ type }}" value="{{ v[name] if v and type != 'password' and v[name] is not none else '' }}" {{ 'min=1' if type=='number' }} {{ 'required' if name in ('title','author','name') }}></label>
+  {% endfor %}
+  <div class="actions"><button class="btn primary">Save</button><a class="btn" href="{{ back }}">Cancel</a></div>
+</form>
+{% endblock %}

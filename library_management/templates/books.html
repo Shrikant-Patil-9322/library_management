@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Books{% endblock %}
+{% block content %}
+<header class="head"><div><h1>Books</h1><p class="sub">{{ books|length }} titles match.</p></div>
+<a class="btn primary" href="{{ url_for('book_new') }}">Add book</a></header>
+<form class="filters" method="get">
+  <input name="q" value="{{ term }}" placeholder="Search title, author or ISBN" aria-label="Search books">
+  <select name="cat" aria-label="Category" onchange="this.form.submit()"><option value="">All categories</option>
+    {% for c in cats %}<option {{ 'selected' if c==cat }}>{{ c }}</option>{% endfor %}</select>
+  <button class="btn">Search</button>
+</form>
+<section class="panel flush">
+<table class="rows"><thead><tr><th></th><th>Title</th><th>Category</th><th>ISBN</th><th>Availability</th><th></th></tr></thead><tbody>
+{% for b in books %}
+<tr>
+  <td class="cv"><i style="--h:{{ b.title|hue }}"></i></td>
+  <td><b>{{ b.title }}</b><br><span class="muted">{{ b.author }}</span></td>
+  <td>{{ b.category }}</td><td class="muted">{{ b.isbn or '-' }}</td>
+  <td><span class="pill {{ 'ok' if b.avail>0 else 'out' }}">{{ b.avail }} of {{ b.copies }} in</span></td>
+  <td class="r"><a class="link" href="{{ url_for('book_edit', bid=b.id) }}">Edit</a>
+    <form method="post" action="{{ url_for('book_delete', bid=b.id) }}" data-confirm="Delete “{{ b.title }}”?"><button class="link danger">Delete</button></form></td>
+</tr>
+{% else %}<tr><td colspan="6" class="empty">No books found. Clear the search or add a new title.</td></tr>{% endfor %}
+</tbody></table></section>
+{% endblock %}

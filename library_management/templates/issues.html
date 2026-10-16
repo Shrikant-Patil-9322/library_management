@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Issue & return{% endblock %}
+{% block content %}
+<header class="head"><div><h1>Issue &amp; return</h1><p class="sub">Loans run {{ loan }} days by default. Late returns cost ₹{{ FINE }} per day.</p></div></header>
+<form method="post" class="panel issue">
+  <label>Book<select name="book_id" required>{% for b in avail %}<option value="{{ b.id }}">{{ b.title }} ({{ b.avail }} in)</option>{% endfor %}</select></label>
+  <label>Member<select name="member_id" required>{% for m in members %}<option value="{{ m.id }}">{{ m.name }}</option>{% endfor %}</select></label>
+  <label>Days<input name="days" type="number" min="1" value="{{ loan }}"></label>
+  <button class="btn primary">Issue book</button>
+</form>
+<div class="tabs">
+  {% for k,l in [('active','On loan'),('overdue','Overdue'),('returned','Returned'),('all','All')] %}
+  <a href="{{ url_for('issues', s=k) }}" class="{{ 'on' if status==k }}">{{ l }}</a>{% endfor %}
+</div>
+<section class="panel flush">
+<table class="rows"><thead><tr><th>Book</th><th>Member</th><th>Issued</th><th>Due</th><th>Status</th><th></th></tr></thead><tbody>
+{% for i in rows %}
+{% set late = (not i.returned) and i.due < today %}
+<tr><td><b>{{ i.title }}</b><br><span class="muted">{{ i.author }}</span></td><td>{{ i.name }}</td><td>{{ i.issued|pretty }}</td><td>{{ i.due|pretty }}</td>
+<td>{% if i.returned %}<span class="pill">Returned {{ i.returned|pretty }}{% if i.fine %} · ₹{{ i.fine }} fine{% endif %}</span>
+{% elif late %}<span class="pill out">Late · ₹{{ late_fine(i.due) }}</span>{% else %}<span class="pill ok">On loan</span>{% endif %}</td>
+<td class="r">{% if not i.returned %}<form method="post" action="{{ url_for('issue_return', iid=i.id) }}"><button class="btn small">Return</button></form>{% endif %}</td></tr>
+{% else %}<tr><td colspan="6" class="empty">Nothing here. Switch the tab or issue a book above.</td></tr>{% endfor %}
+</tbody></table></section>
+{% endblock %}
